@@ -20,7 +20,6 @@ angular.module('portainer.azure', ['portainer.app', containerInstancesModule]).c
           }
           try {
             EndpointProvider.setEndpointID(endpoint.Id);
-            EndpointProvider.setEndpointPublicURL(endpoint.PublicURL);
             EndpointProvider.setOfflineModeFromStatus(endpoint.Status);
             await StateManager.updateEndpointState(endpoint);
           } catch (e) {
