@@ -1,3 +1,4 @@
+import { ResourceControlType } from '@/portainer/access-control/types';
 import { AccessControlFormData } from 'Portainer/components/accessControlForm/porAccessControlFormModel';
 
 angular.module('portainer.app').controller('StackController', [
@@ -51,6 +52,12 @@ angular.module('portainer.app').controller('StackController', [
     ContainerHelper,
     endpoint
   ) {
+    $scope.resourceType = ResourceControlType.Stack;
+
+    $scope.onUpdateResourceControlSuccess = function () {
+      $state.reload();
+    };
+
     $scope.endpoint = endpoint;
     $scope.state = {
       actionInProgress: false,
