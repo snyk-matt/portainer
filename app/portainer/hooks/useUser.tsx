@@ -10,12 +10,12 @@ import {
 } from 'react';
 
 import { getUser } from '../users/user.service';
-import { User } from '../users/types';
+import { User, UserId } from '../users/types';
 
 import { useLocalStorage } from './useLocalStorage';
 
 interface State {
-  user?: User | null;
+  user?: User;
 }
 
 const state: State = {};
@@ -29,7 +29,7 @@ export function useUser() {
     throw new Error('should be nested under UserProvider');
   }
 
-  return context;
+  return { ...context, isAdmin: isAdmin(context.user) };
 }
 
 export function useAuthorizations(
@@ -89,7 +89,7 @@ interface UserProviderProps {
 
 export function UserProvider({ children }: UserProviderProps) {
   const [jwt] = useLocalStorage('JWT', '');
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | undefined>();
 
   useEffect(() => {
     if (state.user) {
@@ -101,7 +101,10 @@ export function UserProvider({ children }: UserProviderProps) {
     }
   }, [jwt]);
 
-  const providerState = useMemo(() => ({ user }), [user]);
+  const providerState = useMemo(
+    () => ({ user, isAdmin: isAdmin(user) }),
+    [user]
+  );
 
   if (jwt === '') {
     return null;
@@ -117,18 +120,13 @@ export function UserProvider({ children }: UserProviderProps) {
     </UserContext.Provider>
   );
 
-  async function loadUser(id: number) {
+  async function loadUser(id: UserId) {
     const user = await getUser(id);
     state.user = user;
     setUser(user);
   }
 }
 
-export function useIsAdmin() {
-  const { user } = useUser();
-  return isAdmin(user);
-}
-
-export function isAdmin(user?: User | null): boolean {
+function isAdmin(user?: User): boolean {
   return !!user && user.Role === 1;
 }
